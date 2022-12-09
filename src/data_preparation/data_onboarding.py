@@ -58,22 +58,18 @@ class FisOnboarding(DatasetOnboarding):
         source_df = self.read_dataset()
         source_df = self.input_projection(source_df)
         self.cast_date_columns(source_df, date_columns)
-        self.obtain_departure_month(source_df)
         # If new columns onboarded, need to implement:
         # - proper type casting (date, numeric wrongly parsed into string
         # - nan coding standardization
 
-        output_columns_map = {x:x[8:] for x in self.cols_to_onboard}
+        output_columns_map = self.obtain_output_column_names()
         out_df = self.output_projection(source_df, output_columns_map)
         return out_df
 
     def obtain_output_column_names(self):
         output_columns_map = {x:x[8:] for x in self.cols_to_onboard}
-        output_columns_map["wh_fleg_dep_day_scd_month"] = "dep_day_scd_month"
+        return output_columns_map
 
     def cast_date_columns(self, df, date_columns: list):
         for date_col in date_columns:
             df[date_col] = pd.to_datetime(df[date_col], dayfirst=True)
-
-    def obtain_departure_month(self, df):
-        df["wh_fleg_dep_day_scd_month"] = df["wh_fleg_dep_day_scd"].dt.month

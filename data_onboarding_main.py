@@ -1,5 +1,5 @@
-from src.data_onboarding import data_onboarding
-from src.data_onboarding import constants
+from src.data_preparation import data_onboarding
+from src.data_preparation import constants
 
 delay_onboarder = data_onboarding.DelayOnboarding(constants.DELAY_DATASET_PATH, constants.DELAY_COLUMNS_TO_ONBOARD)
 df_delay = delay_onboarder.prepare_dataset(constants.DELAY_OUTPUT_COLUMNS_MAP)
