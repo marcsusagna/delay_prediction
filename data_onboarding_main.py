@@ -1,3 +1,5 @@
+import os
+
 from src.data_preparation import data_onboarding
 from src.data_preparation import constants
 
@@ -18,4 +20,6 @@ output_df = (
     )
 )
 # Write to parquet to reduce size (better compression) and keep schema in file metadata
-output_df.to_parquet("data/onboarded/flights_with_delay.parquet", index=False)
+ONBOARDED_PATH = "data/onboarded/"
+os.makedirs(os.path.dirname(ONBOARDED_PATH), exist_ok=True)
+output_df.to_parquet(ONBOARDED_PATH+"flights_with_delay.parquet", index=False)

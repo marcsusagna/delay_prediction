@@ -1,5 +1,4 @@
 # This script runs in a container on PROD environment
-
 import sys
 import os
 import pickle

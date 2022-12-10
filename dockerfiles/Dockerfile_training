@@ -1,0 +1,30 @@
+FROM python:3.10-slim-buster
+
+WORKDIR /tmp
+
+# Install python requirements
+
+COPY dockerfiles/training_requirements.txt ./
+RUN pip install --upgrade pip
+RUN pip install -r training_requirements.txt
+
+# Bring source data to the image
+
+WORKDIR /delay_train_app
+COPY data/source ./data/source/
+
+# Bring source code
+
+COPY src/ ./src/
+
+# Bring model blueprint
+
+ARG MODEL_VERSION=v0.0.1
+COPY model_registry/$MODEL_VERSION ./model_registry/$MODEL_VERSION
+
+# Bring data pipeline scripts
+
+COPY data_onboarding_main.py ./
+COPY preprocessing_main.py ./
+COPY train_main.py ./
+

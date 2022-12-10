@@ -1,0 +1,28 @@
+FROM python:3.10-slim-buster
+
+WORKDIR /tmp
+
+# Install python requirements
+
+COPY dockerfiles/serving_requirements.txt ./
+RUN pip install --upgrade pip
+RUN pip install -r serving_requirements.txt
+
+# Bring data to the image
+
+WORKDIR /delay_inference_app
+COPY data/clean ./data/clean/
+
+# Bring model and model blueprint
+
+ARG MODEL_VERSION=v0.0.1
+COPY model_registry/$MODEL_VERSION ./model_registry/$MODEL_VERSION
+
+# Bring source code
+
+COPY src/ ./src/
+
+# Bring serve main script
+
+COPY serve_main.py ./
+

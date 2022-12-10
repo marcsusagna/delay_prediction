@@ -1,6 +1,10 @@
-from src.data_preparation.feature_extraction import FeatureExtractor
+import os
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
+
+from src.data_preparation.feature_extraction import FeatureExtractor
+
 
 base_df = pd.read_parquet("data/onboarded/flights_with_delay.parquet")
 
@@ -19,6 +23,9 @@ df_2021 = df_with_features[df_with_features.departure_year == 2021]
 df_test = df_with_features[df_with_features.departure_year == 2022]
 df_train, df_validation = train_test_split(df_2021, test_size=0.2)
 
-df_test.to_parquet("data/clean/test.parquet", index=False)
-df_train.to_parquet("data/clean/train.parquet", index=False)
-df_validation.to_parquet("data/clean/validation.parquet", index=False)
+CLEAN_PATH = "data/clean/"
+os.makedirs(os.path.dirname(CLEAN_PATH), exist_ok=True)
+
+df_test.to_parquet(CLEAN_PATH+"test.parquet", index=False)
+df_train.to_parquet(CLEAN_PATH+"train.parquet", index=False)
+df_validation.to_parquet(CLEAN_PATH+"validation.parquet", index=False)
