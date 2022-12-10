@@ -67,10 +67,10 @@ dict_for_model_registry = {
     }
 }
 
-model_blueprint_path = "model_registry/v0.0.1/blueprint.pkl"
+model_path = "model_registry/v0.0.1/"
 
-os.makedirs(os.path.dirname(model_blueprint_path), exist_ok=True)
-pickle.dump(dict_for_model_registry, open(model_blueprint_path, 'wb'))
+os.makedirs(os.path.dirname(model_path), exist_ok=True)
+pickle.dump(dict_for_model_registry, open(model_path+"blueprint.pkl", 'wb'))
 
 
 

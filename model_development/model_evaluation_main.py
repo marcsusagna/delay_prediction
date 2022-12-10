@@ -76,6 +76,5 @@ model_blueprint["metrics"]["delays_2022_for_2021_schedule"] = delays_2022_for_20
 model_blueprint["metrics"]["predicted_delays_2022"] = predicted_delays_2022
 
 # Update model registry with new metrics:
-model_blueprint_path = "model_registry/v0.0.1/blueprint.pkl"
-os.makedirs(os.path.dirname(model_blueprint_path), exist_ok=True)
-pickle.dump(model_blueprint, open(model_blueprint_path, 'wb'))
+os.makedirs(os.path.dirname(model_path), exist_ok=True)
+pickle.dump(model_blueprint, open(model_path+"blueprint.pkl", 'wb'))
