@@ -56,13 +56,18 @@ val_score = accuracy_score(y_validation, chosen_model.predict(X_validation))
 
 # Store information of chosen model in model registry
 dict_for_model_registry = {
-    "model_version": "0.0.1",
-    "untrained_model": untrained_chosen_model,
-    "cv_scores": cv_scores_chosen_model,
-    "validation_score": val_score
+    "model": {
+        "model_version": "0.0.1",
+        "pipe_wrapper": pipe_wrapper,
+        "untrained_model": untrained_chosen_model
+    },
+    "metrics": {
+        "cv_scores": cv_scores_chosen_model,
+        "validation_score": val_score
+    }
 }
 
-model_blueprint_path = "model_registry/v0.0.1/model_blueprint"
+model_blueprint_path = "model_registry/v0.0.1/blueprint.pkl"
 
 os.makedirs(os.path.dirname(model_blueprint_path), exist_ok=True)
 pickle.dump(dict_for_model_registry, open(model_blueprint_path, 'wb'))

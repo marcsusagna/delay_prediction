@@ -8,6 +8,7 @@ base_df = pd.read_parquet("data/onboarded/flights_with_delay.parquet")
 feature_extractor = FeatureExtractor(base_df)
 df_with_features = feature_extractor.passanger_features(base_df)
 df_with_features = feature_extractor.date_features(df_with_features)
+df_with_features = feature_extractor.id_features(df_with_features)
 
 # Data split: Splitting in three sets:
 # - Train: 80% of 2021. Use: Model development and selection through CV within it

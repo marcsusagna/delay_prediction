@@ -25,8 +25,25 @@ class FeatureExtractor():
         out_df = (
             input_df
             .assign(
+                departure_day=input_df["dep_day_scd"].dt.day,
                 departure_month=input_df["dep_day_scd"].dt.month,
                 departure_year=input_df["dep_day_scd"].dt.year
+            )
+        )
+        return out_df
+
+    def id_features(self, input_df):
+        out_df = (
+            input_df
+            .assign(
+                flight_id=(
+                        input_df["flt_carrier"]
+                        + input_df["flt_no"].astype(str)
+                        + "-"
+                        + input_df["departure_day"].astype(str)
+                        + "/"
+                        + input_df["departure_month"].astype(str)
+                )
             )
         )
         return out_df
