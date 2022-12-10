@@ -56,8 +56,9 @@ def obtain_contrafactual_dataset(df_test, relative_increases: list, column_prev_
                         scaling_factor=1 + x,
                         original_total_pax=lambda df: df[column_prev_year_pax],
                         total_pax_uncapped=lambda df: df[column_prev_year_pax] * (1 + x),
-                        total_pax=lambda df: df.loc[:, ["total_pax_uncapped", "pax_seats"]].min(axis=1),
-                        ac_occupancy=lambda df: df["total_pax"]/df["pax_seats"]
+                        free_pax_seats=lambda df: df["pax_seats"]-df["dhc_fln"]-df["xcr_fln"],
+                        total_pax=lambda df: df.loc[:, ["total_pax_uncapped", "free_pax_seats"]].min(axis=1),
+                        ac_occupancy=lambda df: df["total_pax"]/df["free_pax_seats"]
                     )
                 )
                 for x in relative_increases

@@ -25,6 +25,8 @@ FIS_COLUMNS_TO_ONBOARD = [
     "wh_fleg_pax_fln_y",
     "wh_fleg_pax_fln_f",
     "wh_fleg_pax_fln_e",
+    "wh_fleg_dhc_fln",
+    "wh_fleg_xcr_fln",
     "wh_fleg_dep_ap_scd",
     "wh_fleg_dep_day_scd"
 ]

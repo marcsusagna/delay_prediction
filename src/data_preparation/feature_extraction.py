@@ -22,8 +22,9 @@ class FeatureExtractor():
         out_df = (
             out_df
             .assign(
+                # refers to aircraft occupancy over free seats (not used by crew)
                 ac_occupancy=(
-                    out_df.total_pax/out_df.pax_seats
+                    out_df.total_pax/(out_df.pax_seats - out_df.dhc_fln - out_df.xcr_fln)
                 )
             )
         )
