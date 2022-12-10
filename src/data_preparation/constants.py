@@ -1,3 +1,9 @@
+# Data folder structure
+SOURCE_PATH = "data/source/"
+ONBOARDED_PATH = "data/onboarded/"
+CLEAN_PATH = "data/clean/"
+
+# Onboarding constants
 DELAY_COLUMNS_TO_ONBOARD = [
     "wh_fdel_leg_i",
     "wh_fdel_delay_time"
@@ -8,8 +14,6 @@ DELAY_OUTPUT_COLUMNS_MAP = {
     "wh_fdel_delay_time": "total_delay_time",
     "is_delayed": "is_delayed"
 }
-
-DELAY_DATASET_PATH = "data/source/delay.csv"
 
 # Use UTC columns
 FIS_COLUMNS_TO_ONBOARD = [
@@ -26,4 +30,6 @@ FIS_COLUMNS_TO_ONBOARD = [
 
 FIS_DATE_COLS = ["wh_fleg_dep_day_scd"]
 
-FIS_DATASET_PATH = "data/source/fis.csv"
+# Data preparation constants
+TRAIN_VAL_SPLIT_SEED = 4891
+VAL_FRACTION = 0.2

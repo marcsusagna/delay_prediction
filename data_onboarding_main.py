@@ -3,10 +3,10 @@ import os
 from src.data_preparation import data_onboarding
 from src.data_preparation import constants
 
-delay_onboarder = data_onboarding.DelayOnboarding(constants.DELAY_DATASET_PATH, constants.DELAY_COLUMNS_TO_ONBOARD)
+delay_onboarder = data_onboarding.DelayOnboarding(constants.SOURCE_PATH+"df_delay.csv", constants.DELAY_COLUMNS_TO_ONBOARD)
 df_delay = delay_onboarder.prepare_dataset(constants.DELAY_OUTPUT_COLUMNS_MAP)
 
-fis_onboarder = data_onboarding.FisOnboarding(constants.FIS_DATASET_PATH, constants.FIS_COLUMNS_TO_ONBOARD)
+fis_onboarder = data_onboarding.FisOnboarding(constants.SOURCE_PATH+"df_fis.csv", constants.FIS_COLUMNS_TO_ONBOARD)
 df_fis = fis_onboarder.prepare_dataset(constants.FIS_DATE_COLS)
 
 # There are three flights for which there is no record in the delay table, we drop them (inner)
@@ -20,6 +20,5 @@ output_df = (
     )
 )
 # Write to parquet to reduce size (better compression) and keep schema in file metadata
-ONBOARDED_PATH = "data/onboarded/"
-os.makedirs(os.path.dirname(ONBOARDED_PATH), exist_ok=True)
-output_df.to_parquet(ONBOARDED_PATH+"flights_with_delay.parquet", index=False)
+os.makedirs(os.path.dirname(constants.ONBOARDED_PATH), exist_ok=True)
+output_df.to_parquet(constants.ONBOARDED_PATH+"legs_with_delay_info.parquet", index=False)
