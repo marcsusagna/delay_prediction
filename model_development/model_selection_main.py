@@ -1,3 +1,4 @@
+# To be run from project root directory
 import pandas as pd
 
 from sklearn.linear_model import LogisticRegression
@@ -43,8 +44,8 @@ cv_scores_log_reg = cross_val_score(log_reg_pipeline, X_train, y_train, cv=stati
 untrained_chosen_model = clone(log_reg_pipeline)
 cv_scores_best_model = cv_scores_log_reg
 
-# TODO: Get benchmark model and compare on validation set
-
+# Current benchmark model scores:
+benchmark_model = model_utils.fetch_model_blueprint_from_registry(model_constants.MODEL_CURRENT_VERSION)
 
 df_validation = pd.read_parquet(prep_constants.CLEAN_PATH+"validation.parquet")
 
@@ -57,6 +58,6 @@ chosen_model_blueprint = model_utils.create_model_blueprint(
     df_validation=df_validation,
 )
 
-model_utils.put_model_on_registry(chosen_model_blueprint)
+model_utils.put_model_blueprint_on_registry(chosen_model_blueprint)
 
 

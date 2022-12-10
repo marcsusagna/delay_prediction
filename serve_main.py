@@ -1,35 +1,35 @@
 # This script runs in a container on PROD environment
+# run as python serve_main.py model_tag inc1 inc2 inc3
+# where inc1, inc2, inc3... are all the relative increases in customer demand that you want to test
 import sys
 import os
-import pickle
-from joblib import load
-
 import pandas as pd
 
+from src.data_preparation import constants as prep_constants
+
+from src.model import utils as model_utils
+from src.model import model_evaluation
 from src.model import model_visualization
 
-OUTPUT_PATH = "model_output/"
-# Import trained model and its blueprint
-model_path = "model_registry/v0.0.1/"
-model = load(model_path+"trained_model.joblib")
-model_blueprint = pickle.load(open(model_path + "blueprint.pkl", 'rb'))
-# Import 2022 data: Base for the contrafactual test
-df_test = pd.read_parquet("data/clean/test.parquet")
+model_version = sys.argv[1]
+model = model_utils.fetch_trained_model(model_version)
+model_blueprint = model_utils.fetch_model_blueprint_from_registry(model_version)
 
-# Prepare contrafactual test:
-all_scaling_factors = [float(x) for x in sys.argv[1:]]
+df_test = pd.read_parquet(prep_constants.CLEAN_PATH+"test.parquet")
 
-df_all_contrafactual_test = (
-    pd
-    .concat(
-        [df_test.copy().assign(scaling_factor=1+x, original_total_pax=df_test["total_pax"], total_pax=df_test["total_pax"]*(1+x)) for x in all_scaling_factors]
-    )
+all_rel_increase = [float(x) for x in sys.argv[2:]]
+df_all_contrafactual_test = model_evaluation.obtain_contrafactual_dataset(
+    df_test=df_test,
+    relative_increases=all_rel_increase,
+    column_prev_year_pax="total_pax"
 )
 
-X_train = df_all_contrafactual_test.loc[:, model_blueprint["model"]["pipe_wrapper"].id_col + model_blueprint["model"]["pipe_wrapper"].all_features]
+X_contrafactual_test, _ = (
+    model_utils
+    .create_X_and_y(df_all_contrafactual_test, model_blueprint["model"]["pipeline_wrapper"], "binary")
+)
 
-# Predict on contrafactual test:
-df_all_contrafactual_test["is_delayed"] = model.predict(X_train)
+df_all_contrafactual_test["is_delayed"] = model.predict(X_contrafactual_test)
 
 # Obtain metrics on the contrafactual test:
 # Metric 1: Actual passenger increase:
@@ -57,8 +57,6 @@ actual_pax_increase = (
 
 df_train = pd.read_parquet("data/clean/train.parquet")
 df_validation = pd.read_parquet("data/clean/validation.parquet")
-df_test = pd.read_parquet("data/clean/test.parquet")
-
 
 df_all_dates = pd.concat([df_train, df_validation, df_test])
 df_all_dates["scaling_factor"] = 1
@@ -74,10 +72,11 @@ delay_by_month = model_visualization.compute_delay_by_month(df_all_dates)
 # Metric 4: delays per departure airport
 delay_by_dep_ap = model_visualization.compute_delay_by_airport(df_all_dates)
 
-os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-delay_by_year.to_parquet(OUTPUT_PATH+"delay_by_year.parquet", index=False)
-delay_by_month.to_parquet(OUTPUT_PATH+"delay_by_month.parquet", index=False)
-delay_by_dep_ap.to_parquet(OUTPUT_PATH+"delay_by_dep_ap.parquet", index=False)
+output_path = "model_output/"+model_version+"/"
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
+delay_by_year.to_parquet(output_path+"delay_by_year.parquet", index=False)
+delay_by_month.to_parquet(output_path+"delay_by_month.parquet", index=False)
+delay_by_dep_ap.to_parquet(output_path+"delay_by_dep_ap.parquet", index=False)
 
 # Temporarily, until API developed:
 

@@ -3,10 +3,10 @@ import os
 from src.data_preparation import data_onboarding
 from src.data_preparation import constants
 
-delay_onboarder = data_onboarding.DelayOnboarding(constants.SOURCE_PATH+"df_delay.csv", constants.DELAY_COLUMNS_TO_ONBOARD)
+delay_onboarder = data_onboarding.DelayOnboarding(constants.SOURCE_PATH+"delay.csv", constants.DELAY_COLUMNS_TO_ONBOARD)
 df_delay = delay_onboarder.prepare_dataset(constants.DELAY_OUTPUT_COLUMNS_MAP)
 
-fis_onboarder = data_onboarding.FisOnboarding(constants.SOURCE_PATH+"df_fis.csv", constants.FIS_COLUMNS_TO_ONBOARD)
+fis_onboarder = data_onboarding.FisOnboarding(constants.SOURCE_PATH+"fis.csv", constants.FIS_COLUMNS_TO_ONBOARD)
 df_fis = fis_onboarder.prepare_dataset(constants.FIS_DATE_COLS)
 
 # There are three flights for which there is no record in the delay table, we drop them (inner)
