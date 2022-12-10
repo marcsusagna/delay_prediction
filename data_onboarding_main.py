@@ -19,6 +19,20 @@ output_df = (
         how="inner"
     )
 )
+
+# Onboard aircraft capacity (pax seats):
+ac_capacity = data_onboarding.AircraftCapacityCreator()
+df_ac_capacity = ac_capacity.return_aircraft_capacity()
+
+output_df = (
+    output_df
+    .merge(
+        df_ac_capacity,
+        on="ac_subtype",
+        how="inner"
+    )
+)
+
 # Write to parquet to reduce size (better compression) and keep schema in file metadata
 os.makedirs(os.path.dirname(constants.ONBOARDED_PATH), exist_ok=True)
 output_df.to_parquet(constants.ONBOARDED_PATH+"legs_with_delay_info.parquet", index=False)

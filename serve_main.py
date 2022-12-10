@@ -53,6 +53,9 @@ actual_pax_increase = (
     )
 )
 
+print("Actual pax increase")
+print(actual_pax_increase)
+
 # Obtain metrics for model visualization
 
 df_train = pd.read_parquet("data/clean/train.parquet")

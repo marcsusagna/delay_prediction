@@ -49,8 +49,19 @@ def obtain_contrafactual_dataset(df_test, relative_increases: list, column_prev_
     df_all_contrafactual_test = (
         pd
         .concat(
-            [df_test.copy().assign(scaling_factor=1 + x, original_total_pax=df_test[column_prev_year_pax],
-                                   total_pax=df_test[column_prev_year_pax] * (1 + x)) for x in relative_increases]
+            [
+                (
+                    df_test.copy()
+                    .assign(
+                        scaling_factor=1 + x,
+                        original_total_pax=lambda df: df[column_prev_year_pax],
+                        total_pax_uncapped=lambda df: df[column_prev_year_pax] * (1 + x),
+                        total_pax=lambda df: df.loc[:, ["total_pax_uncapped", "pax_seats"]].min(axis=1),
+                        ac_occupancy=lambda df: df["total_pax"]/df["pax_seats"]
+                    )
+                )
+                for x in relative_increases
+            ]
         )
     )
     return df_all_contrafactual_test

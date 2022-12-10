@@ -1,6 +1,4 @@
 # To be run from project root directory
-import pickle
-import os
 import sys
 
 import pandas as pd
@@ -24,7 +22,7 @@ model_to_evaluate = clone(model_blueprint["model"]["untrained_model"])
 model_pipeline_wrapper = model_blueprint["model"]["pipeline_wrapper"]
 
 test_score = model_utils.train_and_test_model(model_to_evaluate, model_pipeline_wrapper, df_all_train, df_test)
-
+print("Test score:", test_score)
 ## Evaluate model on contrafactual test set between 2021 and 2022
 
 # Obtain contrafactual test dataset
@@ -45,10 +43,10 @@ X_contrafactual_test, y_contrafactual_test = (
 
 # Real delays in flights from 2021 schedule that replicated in 2022 schedule:
 delays_2022_for_2021_schedule = y_contrafactual_test.mean()
-
+print("Real delays in 2022 for flights with same schedule as 2021", delays_2022_for_2021_schedule)
 # Predicted delays according to contrafactual analysis with the given pax increase:
 predicted_delays_2022 = model_to_evaluate.predict(X_contrafactual_test).mean()
-
+print("Predicted delays in 2022 for flights with same schedule as 2021", predicted_delays_2022)
 # Update template with scores:
 model_blueprint["metrics"]["test_score"] = test_score
 model_blueprint["metrics"]["delays_2022_for_2021_schedule"] = delays_2022_for_2021_schedule

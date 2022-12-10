@@ -1,5 +1,5 @@
 MODEL_CURRENT_VERSION = "v0.0.1"
-MODEL_NEW_VERSION = "v0.0.1"
+MODEL_NEW_VERSION = "v0.0.2"
 
 # variables
 ID_COL = [
@@ -13,6 +13,7 @@ RESPONSE_VARIABLES = {
 
 NUMERIC_VARIABLES = [
     "total_pax",
+    "ac_occupancy"
 ]
 
 CATEGORICAL_VARIABLES = [

@@ -12,10 +12,18 @@ class FeatureExtractor():
             input_df
             .assign(
                 total_pax=(
-                        input_df.pax_fln_c
-                        + input_df.pax_fln_y
-                        + input_df.pax_fln_f
-                        + input_df.pax_fln_e
+                    input_df.pax_fln_c
+                    + input_df.pax_fln_y
+                    + input_df.pax_fln_f
+                    + input_df.pax_fln_e
+                )
+            )
+        )
+        out_df = (
+            out_df
+            .assign(
+                ac_occupancy=(
+                    out_df.total_pax/out_df.pax_seats
                 )
             )
         )

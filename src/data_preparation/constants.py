@@ -19,6 +19,7 @@ DELAY_OUTPUT_COLUMNS_MAP = {
 FIS_COLUMNS_TO_ONBOARD = [
     "wh_fleg_leg_i",
     "wh_fleg_flt_carrier",
+    "wh_fleg_ac_subtype",
     "wh_fleg_flt_no",
     "wh_fleg_pax_fln_c",
     "wh_fleg_pax_fln_y",
