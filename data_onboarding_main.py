@@ -18,7 +18,37 @@ output_df = (
         on="leg_i",
         how="inner"
     )
+    .merge(
+        df_delay.rename(columns={"total_delay_time": "prev_leg_total_delay_time"}),
+        left_on="flt_leg_i_prev",
+        right_on="leg_i",
+        how="left"
+    )
 )
+
+# Obtain airport metrics:
+output_df["is_cancelled"] = (output_df["leg_state"] == "CNL").astype(int)
+cancellations_per_ap = (
+    output_df
+    .groupby(["dep_ap_scd", "dep_day_scd"], as_index=False)
+    .agg(
+        num_cancelled_flights_in_ap=("is_cancelled", "sum"),
+        num_scd_flights_in_ap=("is_cancelled", "count")
+    )
+)
+output_df = (
+    output_df
+    .merge(
+        cancellations_per_ap,
+        on=["dep_ap_scd", "dep_day_scd"],
+        how="inner"
+    )
+)
+# Drop cancelled flights
+output_df = output_df[output_df["leg_state"] != "CNL"]
+
+# Clean up some variables wrongly parsed:
+output_df["season"] = output_df["season"].str.replace(" ", "")
 
 # Onboard aircraft capacity (pax seats):
 ac_capacity = data_onboarding.AircraftCapacityCreator()

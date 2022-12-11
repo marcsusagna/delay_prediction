@@ -3,17 +3,18 @@ import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from src.data_preparation.feature_extraction import FeatureExtractor
+from src.data_preparation import feature_extraction
 from src.data_preparation import constants
 
 
 base_df = pd.read_parquet(constants.ONBOARDED_PATH+"legs_with_delay_info.parquet")
 
 # Feature Extraction
-feature_extractor = FeatureExtractor(base_df)
-df_with_features = feature_extractor.passanger_features(base_df)
-df_with_features = feature_extractor.date_features(df_with_features)
-df_with_features = feature_extractor.id_features(df_with_features)
+df_with_features = feature_extraction.passenger_features(base_df)
+df_with_features = feature_extraction.categorical_features(df_with_features)
+df_with_features = feature_extraction.date_features(df_with_features)
+df_with_features = feature_extraction.time_difference_features(df_with_features)
+df_with_features = feature_extraction.id_features(df_with_features)
 
 # Data split: Splitting in three sets:
 # - Train: 80% of 2021. Use: Model development and selection through CV within it

@@ -69,9 +69,9 @@ class FisOnboarding(DatasetOnboarding):
         output_columns_map = {x:x[8:] for x in self.cols_to_onboard}
         return output_columns_map
 
-    def cast_date_columns(self, df, date_columns: list):
-        for date_col in date_columns:
-            df[date_col] = pd.to_datetime(df[date_col], dayfirst=True)
+    def cast_date_columns(self, df, date_columns: dict):
+        for date_col, day_first_flag in date_columns.items():
+            df[date_col] = pd.to_datetime(df[date_col], dayfirst=day_first_flag)
 
 
 
