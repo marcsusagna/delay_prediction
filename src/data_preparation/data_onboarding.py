@@ -43,7 +43,6 @@ class DelayOnboarding(DatasetOnboarding):
 
     def aggregate_delays(self, df):
         agg_df = df.groupby("wh_fdel_leg_i", as_index=False).agg({"wh_fdel_delay_time": "sum"})
-        agg_df = agg_df.assign(is_delayed=(agg_df.wh_fdel_delay_time > 0).astype("int"))
         return agg_df
 
 

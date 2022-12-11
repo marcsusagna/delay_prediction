@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 
 def obtain_demand_increase(df_2021, df_2022):
     pax_2021 = df_2021["total_pax"].sum()
@@ -66,3 +66,28 @@ def obtain_contrafactual_dataset(df_test, relative_increases: list, column_prev_
         )
     )
     return df_all_contrafactual_test
+
+
+def characterize_delay_distribution(delay_times):
+    out_dict = {
+        # Distribution of time delayed
+        "average_delay_time": np.mean(delay_times),
+        "median_delay_time": np.median(delay_times),
+        "quantiles_delay_time": {x: np.quantile(delay_times, x) for x in [0.95, 0.99, 0.999]},
+        "max_delay_time": np.max(delay_times),
+        #  Distribution of num legs delayed
+        "num_legs": len(delay_times),
+        "perc_legs_delayed": np.mean((delay_times > 0)),
+        "perc_legs_delayed_more_than_15_min": np.mean((delay_times > 15))
+    }
+    return out_dict
+
+
+def obtain_business_metrics(df, pax_column, delay_time_column):
+    """
+    :param df: must contain a response variable with delay times and total number of pax
+    :return:
+    """
+    affected_pax = df[df[delay_time_column] > 0][pax_column].sum()
+    total_lost_time = (df[df[delay_time_column] > 0][delay_time_column].sum())/(60*24)
+    return affected_pax, total_lost_time

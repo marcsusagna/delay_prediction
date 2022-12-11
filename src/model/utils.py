@@ -1,12 +1,15 @@
 import pickle
 from joblib import dump, load
 import os
-from sklearn.metrics import accuracy_score
+import numpy as np
+
+from sklearn.metrics import r2_score, accuracy_score
+from sklearn.model_selection import cross_val_score
 
 from sklearn.base import clone
 
 
-def create_X_and_y(df, pipeline_wrapper, response_variable_type):
+def create_X_and_y(df, pipeline_wrapper):
     """
     :param df: dataframe with features and response variable
     :param pipeline_wrapper: metadata on df (which variables are what: response, numeric features, cat features...)
@@ -14,24 +17,27 @@ def create_X_and_y(df, pipeline_wrapper, response_variable_type):
     :return: X and y matrix and vector
     """
     X = df.loc[:, pipeline_wrapper.all_features]
-    y = df.loc[:, pipeline_wrapper.response_variables[response_variable_type]]
+    y = df.loc[:, pipeline_wrapper.response_variables]
     return X, y
 
 
 def train_model(model, pipeline_wrapper, df_train):
-    X_train, y_train = create_X_and_y(df_train, pipeline_wrapper, "binary")
+    X_train, y_train = create_X_and_y(df_train, pipeline_wrapper)
     model.fit(X_train, y_train)
 
 
 def obtain_test_score(trained_model, pipeline_wrapper, df_test):
-    X_test, y_test = create_X_and_y(df_test, pipeline_wrapper, "binary")
-    val_score = accuracy_score(y_test, trained_model.predict(X_test))
-    return val_score
+    X_test, y_test = create_X_and_y(df_test, pipeline_wrapper)
+    y_pred = trained_model.predict(X_test)
+    regression_score = r2_score(y_test, y_pred)
+    classification_score = accuracy_score((y_test == 0).astype(int), (y_pred == 0).astype(int))
+    return regression_score, classification_score
 
 def train_and_test_model(model, pipeline_wrapper, df_train, df_test):
     train_model(model, pipeline_wrapper, df_train)
     test_score = obtain_test_score(model, pipeline_wrapper, df_test)
     return test_score
+
 
 def create_model_blueprint(model_version_tag, untrained_chosen_model, pipeline_wrapper, cv_scores, df_train,
                            df_validation):
@@ -47,8 +53,11 @@ def create_model_blueprint(model_version_tag, untrained_chosen_model, pipeline_w
             "untrained_model": untrained_chosen_model
         },
         "metrics": {
-            "cv_scores": cv_scores_chosen_model,
-            "validation_score": val_score
+            "ml": {
+                "cv_scores": cv_scores_chosen_model,
+                "validation_regression_score": val_score[0],
+                "validation_classification_score": val_score[1]
+            }
         }
     }
     return model_blueprint
@@ -75,3 +84,17 @@ def fetch_trained_model(model_version_tag):
     model_path = "model_registry/" + model_version_tag + "/"
     model = load(model_path + "trained_model.joblib")
     return model
+
+
+def find_best_cv(cv_dict):
+    idx_best = np.argmax([v["cv_scores"].mean() for k, v in cv_dict.items()])
+    best_key = list(cv_dict.keys())[idx_best]
+    print("Chosen model:", best_key)
+    return clone(cv_dict[best_key]["model"]), cv_dict[best_key]["cv_scores"]
+
+def add_cv_result(cv_dict, model_name, model, X, y, cv_folds):
+    cv_scores = cross_val_score(model, X, y, cv=cv_folds)
+    cv_dict[model_name] = {
+        "model": model,
+        "cv_scores": cv_scores
+    }
