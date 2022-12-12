@@ -2,12 +2,16 @@ import pandas as pd
 
 
 def compute_delay_by_year(df):
+    my_quantile99 = lambda x: x.quantile(0.99)
+    my_quantile999 = lambda x: x.quantile(0.999)
     out_df = (
         df
         .groupby(["scaling_factor", "departure_year"], as_index=False)
         .agg(
             average_delay_time=("delay", "mean"),
             median_delay_time=("delay", "median"),
+            perc_99_delay_time=("delay", my_quantile99),
+            perc_999_delay_time=("delay", my_quantile999),
             max_delay_time=("delay", "max"),
             num_legs=("delay", "count"),
             perc_legs_delayed=("is_delayed", "mean"),

@@ -23,7 +23,6 @@ pipe_wrapper = PreprocessingPipeline(
     num_variables=model_constants.NUMERIC_VARIABLES,
     cat_variables=model_constants.CATEGORICAL_VARIABLES
 )
-preprocessing_pipeline = pipe_wrapper.create_preprocessing_pipeline()
 
 ### Model selection:
 
@@ -36,48 +35,28 @@ all_cvs = {}
 
 # Candidate 1: Basic linear regression
 lin_reg_pipeline = Pipeline(steps=[
-    ("preprocessor", preprocessing_pipeline),
+    ("preprocessor", pipe_wrapper.create_preprocessing_pipeline()),
     ("model", LinearRegression())
 ])
 model_utils.add_cv_result(all_cvs, "lin_reg", lin_reg_pipeline, X_train, y_train, static_folds)
 
-# Candidate 2: Basic zir model
-no_outliers = y_train < 50
-zir_model = Pipeline(steps=[
-    ("preprocessor", preprocessing_pipeline),
-    ("model", zero_inflated_estimator(LogisticRegression(max_iter=1000), LinearRegression()))
-])
-model_utils.add_cv_result(all_cvs, "zir", zir_model, X_train[no_outliers], y_train[no_outliers], static_folds)
-
-# Candidate 3: Basic zir log model
-zir_log_model = Pipeline(steps=[
-    ("preprocessor", preprocessing_pipeline),
-    ("model", zero_inflated_log_estimator(LogisticRegression(max_iter=1000), LinearRegression()))
-])
-model_utils.add_cv_result(all_cvs, "zir_log", zir_model, X_train, y_train, static_folds)
-
-# Candidate 4: Random forest
-rf_model = Pipeline(steps=[
-    ("preprocessor", preprocessing_pipeline),
-    ("model", RandomForestRegressor(n_estimators=10))
-])
-model_utils.add_cv_result(all_cvs, "rf", rf_model, X_train, y_train, static_folds)
-
-# Candidate 5:
-zir_rf_model = Pipeline(steps=[
-    ("preprocessor", preprocessing_pipeline),
-    ("model", zero_inflated_log_estimator(RandomForestClassifier(n_estimators=5), LinearRegression()))
-])
-
 # Pick best model:
-untrained_chosen_model, cv_scores_best_model = model_utils.find_best_cv(all_cvs)
+print({k: v["cv_score"].mean() for k, v in all_cvs.items()})
+
+#untrained_chosen_model, cv_scores_best_model = model_utils.find_best_cv(all_cvs)
+
+untrained_chosen_model = lin_reg_pipeline
+cv_score_mean = all_cvs["lin_reg"]["cv_score"].mean()
+
+# Test best model on validation and save the model blueprint
+
 df_validation = pd.read_parquet(prep_constants.CLEAN_PATH+"validation.parquet")
 
 chosen_model_blueprint = model_utils.create_model_blueprint(
     model_version_tag=model_constants.MODEL_NEW_VERSION,
     untrained_chosen_model=untrained_chosen_model,
     pipeline_wrapper=pipe_wrapper,
-    cv_scores=cv_scores_best_model,
+    cv_score=cv_score_mean,
     df_train=df_train,
     df_validation=df_validation,
 )
@@ -85,13 +64,13 @@ chosen_model_blueprint = model_utils.create_model_blueprint(
 # Current benchmark model scores:
 benchmark_model = model_utils.fetch_model_blueprint_from_registry(model_constants.MODEL_CURRENT_VERSION)
 print("Benchmark model performance")
-print("cv_score", benchmark_model["metrics"]["ml"]["cv_scores"].mean())
+print("cv_score", benchmark_model["metrics"]["ml"]["cv_score"])
 print("validation_regression_score", chosen_model_blueprint["metrics"]["ml"]["validation_regression_score"].mean())
 print("validation_classification_score", chosen_model_blueprint["metrics"]["ml"]["validation_classification_score"].mean())
 
 # New model scores:
 print("New model performance")
-print("cv_score", chosen_model_blueprint["metrics"]["ml"]["cv_scores"].mean())
+print("cv_score", chosen_model_blueprint["metrics"]["ml"]["cv_score"])
 print("validation_regression_score", chosen_model_blueprint["metrics"]["ml"]["validation_regression_score"].mean())
 print("validation_classification_score", chosen_model_blueprint["metrics"]["ml"]["validation_classification_score"].mean())
 

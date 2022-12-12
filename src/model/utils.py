@@ -39,10 +39,10 @@ def train_and_test_model(model, pipeline_wrapper, df_train, df_test):
     return test_score
 
 
-def create_model_blueprint(model_version_tag, untrained_chosen_model, pipeline_wrapper, cv_scores, df_train,
+def create_model_blueprint(model_version_tag, untrained_chosen_model, pipeline_wrapper, cv_score, df_train,
                            df_validation):
     chosen_model = clone(untrained_chosen_model)
-    cv_scores_chosen_model = cv_scores
+    cv_scores_chosen_model = cv_score
 
     # Train model to get validation scores:
     val_score = train_and_test_model(chosen_model, pipeline_wrapper, df_train, df_validation)
@@ -54,7 +54,7 @@ def create_model_blueprint(model_version_tag, untrained_chosen_model, pipeline_w
         },
         "metrics": {
             "ml": {
-                "cv_scores": cv_scores_chosen_model,
+                "cv_score": cv_scores_chosen_model,
                 "validation_regression_score": val_score[0],
                 "validation_classification_score": val_score[1]
             }
@@ -96,5 +96,5 @@ def add_cv_result(cv_dict, model_name, model, X, y, cv_folds):
     cv_scores = cross_val_score(model, X, y, cv=cv_folds)
     cv_dict[model_name] = {
         "model": model,
-        "cv_scores": cv_scores
+        "cv_score": cv_scores
     }
