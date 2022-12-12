@@ -1,4 +1,4 @@
-# To be run from project root directory
+# Intended to be a jupyter notebook template for model exploration
 import pandas as pd
 
 from sklearn.linear_model import LogisticRegression, LinearRegression
@@ -6,8 +6,6 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.pipeline import Pipeline
 
 from sklearn.model_selection import KFold
-
-from sklearn.base import clone
 
 from src.data_preprocessing.preprocessing_pipeline import PreprocessingPipeline
 from src.data_preparation import constants as prep_constants
@@ -44,11 +42,12 @@ lin_reg_pipeline = Pipeline(steps=[
 model_utils.add_cv_result(all_cvs, "lin_reg", lin_reg_pipeline, X_train, y_train, static_folds)
 
 # Candidate 2: Basic zir model
+no_outliers = y_train < 50
 zir_model = Pipeline(steps=[
     ("preprocessor", preprocessing_pipeline),
     ("model", zero_inflated_estimator(LogisticRegression(max_iter=1000), LinearRegression()))
 ])
-model_utils.add_cv_result(all_cvs, "zir", zir_model, X_train, y_train, static_folds)
+model_utils.add_cv_result(all_cvs, "zir", zir_model, X_train[no_outliers], y_train[no_outliers], static_folds)
 
 # Candidate 3: Basic zir log model
 zir_log_model = Pipeline(steps=[
@@ -64,10 +63,14 @@ rf_model = Pipeline(steps=[
 ])
 model_utils.add_cv_result(all_cvs, "rf", rf_model, X_train, y_train, static_folds)
 
+# Candidate 5:
+zir_rf_model = Pipeline(steps=[
+    ("preprocessor", preprocessing_pipeline),
+    ("model", zero_inflated_log_estimator(RandomForestClassifier(n_estimators=5), LinearRegression()))
+])
 
 # Pick best model:
 untrained_chosen_model, cv_scores_best_model = model_utils.find_best_cv(all_cvs)
-
 df_validation = pd.read_parquet(prep_constants.CLEAN_PATH+"validation.parquet")
 
 chosen_model_blueprint = model_utils.create_model_blueprint(

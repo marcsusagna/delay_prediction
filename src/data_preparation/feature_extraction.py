@@ -64,7 +64,8 @@ def time_difference_features(input_df):
 
 def numeric_features(input_df):
     out_df = input_df.copy()
-    out_df["rel_leg_distance"] = input_df["leg_dist_scd"]/input_df["flt_dist_act"]
+    out_df["rel_leg_distance"] = input_df["leg_dist_scd"]/input_df["flt_dist_scd"]
+    return out_df
 
 
 def id_features(input_df):
@@ -113,8 +114,8 @@ def extract_loc_dependent_features(input_df, col_name):
     out_df["day_of_month_sin_{}".format(col_name)] = day_of_month_sin
     out_df["day_of_month_cos_{}".format(col_name)] = day_of_month_cos
     out_df["hour_of_day_{}".format(col_name)] = hour_of_day
-    out_df["our_of_day_sin_{}".format(col_name)] = hour_of_day_sin
-    out_df["our_of_day_cos_{}".format(col_name)] = hour_of_day_cos
+    out_df["hour_of_day_sin_{}".format(col_name)] = hour_of_day_sin
+    out_df["hour_of_day_cos_{}".format(col_name)] = hour_of_day_cos
     out_df["part_of_day_{}".format(col_name)] = part_of_day
     out_df["day_of_week_{}".format(col_name)] = day_of_week
     return out_df

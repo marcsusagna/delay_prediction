@@ -14,7 +14,14 @@ df_with_features = feature_extraction.passenger_features(base_df)
 df_with_features = feature_extraction.categorical_features(df_with_features)
 df_with_features = feature_extraction.date_features(df_with_features)
 df_with_features = feature_extraction.time_difference_features(df_with_features)
+df_with_features = feature_extraction.numeric_features(df_with_features)
 df_with_features = feature_extraction.id_features(df_with_features)
+
+# Structural NaN imputation:
+# column rel_leg_distance: 0/0 conceptually means all the distance of the flight done by this leg: impute 1
+df_with_features["rel_leg_distance"] = df_with_features["rel_leg_distance"].fillna(1)
+# column prev_leg_total_delay_time: Mostly due to single legged flights. Impute 0, we assume no delay accumulated
+df_with_features["prev_leg_total_delay_time"] = df_with_features["prev_leg_total_delay_time"].fillna(0)
 
 # Data split: Splitting in three sets:
 # - Train: 80% of 2021. Use: Model development and selection through CV within it

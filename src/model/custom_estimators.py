@@ -9,11 +9,10 @@ class zero_inflated_estimator(BaseEstimator):
         self.regressor = regressor
 
     def fit(self, X, y):
-
         non_zero_idx = y.iloc[:, 0]>0
         self.classifier.fit(X, non_zero_idx.astype(int))
         self.regressor.fit(X[non_zero_idx], y[non_zero_idx])
-        return self
+        #return self
 
     def predict(self, X):
 
@@ -47,7 +46,7 @@ class zero_inflated_log_estimator(BaseEstimator):
         self.log_y_non_zero_std = log_y_non_zero.std().iloc[0]
         log_y_non_zero_stand = self.stand_y(log_y_non_zero)
         self.regressor.fit(X_non_zero, log_y_non_zero_stand)
-        return self
+        #return self
 
     def predict(self, X):
 
