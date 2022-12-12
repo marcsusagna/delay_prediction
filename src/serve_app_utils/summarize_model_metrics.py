@@ -32,7 +32,7 @@ def summarize_model_metrics():
     model_version = constants.MODEL_CURRENT_VERSION
     model_blueprint = model_utils.fetch_model_blueprint_from_registry(model_version)
 
-    ml_metrics = get_metrics_in_lists(model_blueprint["metrics"]["ml"], "ml")
+    ml_metrics = get_metrics_in_lists(model_blueprint["metrics"]["ml"], "machine_learning")
     delay_metrics = obtain_delay_metrics(model_blueprint["metrics"]["delay_distribution"])
 
     all_names = ml_metrics[0] + delay_metrics[0][0] + delay_metrics[1][0]

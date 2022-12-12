@@ -22,7 +22,13 @@ COPY model_registry/$MODEL_VERSION ./model_registry/$MODEL_VERSION
 
 COPY src/ ./src/
 
+# Bring front end needs:
+
+COPY templates ./templates
+
 # Bring serve main script
 
-COPY serve_main.py ./
+COPY model_serve_app.py ./
+
+# CMD python -u model_serve_app.py
 

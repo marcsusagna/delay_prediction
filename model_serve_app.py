@@ -1,8 +1,10 @@
 from flask import redirect  # Importing the class flask
 from flask import Flask, url_for, render_template, request
+
+from src.serve_app_utils.front_end_html_composer import PORT_CONFIG
 from src.serve_app_utils import predict_contrafactual_test
 from src.serve_app_utils import summarize_model_metrics
-import os
+import sys
 # Instantiate API
 app = Flask(__name__, template_folder='templates')
 
@@ -44,4 +46,5 @@ def login():
 # with debugging enabled.
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0')
+    environment = sys.argv[1]
+    app.run(debug=False, host='0.0.0.0', port=PORT_CONFIG[environment])
