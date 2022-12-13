@@ -1,6 +1,10 @@
 from sklearn.base import BaseEstimator
 from sklearn.metrics import r2_score
 import numpy as np
+import xgboost as xgb
+
+
+from sklearn.metrics import accuracy_score
 
 class zero_inflated_estimator(BaseEstimator):
 
@@ -60,3 +64,13 @@ class zero_inflated_log_estimator(BaseEstimator):
     def score(self, X, y):
         predictions = self.predict(X)
         return r2_score(y, predictions)
+
+class my_xgb_regressor_that_classifies(xgb.XGBRegressor):
+    def predict(self, X):
+        reg_prediction = super().predict(X)
+        class_prediction = (reg_prediction > 0).astype(int)
+        return class_prediction
+
+    def score(self, X, y):
+        predictions = self.predict(X)
+        return accuracy_score(y, predictions)

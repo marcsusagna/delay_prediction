@@ -4,15 +4,19 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.pipeline import Pipeline
+import xgboost as xgb
 
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
+
+from sklearn.base import clone
 
 from src.data_preprocessing.preprocessing_pipeline import PreprocessingPipeline
 from src.data_preparation import constants as prep_constants
 
 from src.model import utils as model_utils
 from src.model import constants as model_constants
+from src.model.custom_estimators import my_xgb_regressor_that_classifies
 
 df_train = pd.read_parquet(prep_constants.CLEAN_PATH+"train.parquet")
 
@@ -31,18 +35,48 @@ static_folds = KFold(n_splits=5)
 
 ## Candidate model definition:
 
+base_xgb_reg = xgb.XGBRegressor(
+    objective="reg:squarederror",
+    n_estimators=500,
+    # Regularization:
+    max_depth=5,
+    gamma=0,
+    min_child_weight=1,
+    alpha=1000,
+    reg_lambda=1000,
+    # Randomness
+    eta=0.5,
+    subsample=0.75,
+    colsample_bytree=0.5
+)
+
 # Candidate 1: Basic linear regression AND a basic logistic regression
 regression_pipeline = Pipeline(steps=[
     ("preprocessor", pipe_wrapper.create_preprocessing_pipeline()),
-    ("model", RandomForestRegressor(n_estimators=50, max_depth=20, min_samples_split=0.0005, max_features=0.25))
+    ("model", clone(base_xgb_reg))
 ])
 cv_score_reg = cross_val_score(regression_pipeline, X_train, y_train_reg, cv=static_folds)
 
+base_xgb_class = my_xgb_regressor_that_classifies(
+    objective="reg:squarederror",
+    n_estimators=500,
+    # Regularization:
+    max_depth=5,
+    gamma=0,
+    min_child_weight=1,
+    alpha=1000,
+    reg_lambda=1000,
+    # Randomness
+    eta=0.5,
+    subsample=0.75,
+    colsample_bytree=0.5
+)
+
 classification_pipeline = Pipeline(steps=[
     ("preprocessor", pipe_wrapper.create_preprocessing_pipeline()),
-    ("model", RandomForestClassifier(n_estimators=100, min_samples_split=0.0005))
+    ("model", clone(base_xgb_class))
 ])
-cv_score_class = cross_val_score(classification_pipeline, X_train, y_train_class, cv=static_folds)
+cv_score_class = cross_val_score(classification_pipeline, X_train, y_train_reg, cv=static_folds)
 
 print("Model regression CVs", cv_score_reg.mean())
 print("Model classification CVs", cv_score_class.mean())
