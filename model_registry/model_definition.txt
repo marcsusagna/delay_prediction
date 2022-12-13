@@ -1,4 +1,6 @@
 v0.0.1: Linear regression and logistic regression with only pax, capacity and airport as features
 v0.0.2: Same as v0.0.1 but with all extracted features
 v0.0.3: Same as v0.0.2 but replacing each pax_fln column by its ratio wrt total_pax, to prevent multicollineraty on total_pax effect
-v0.0.4: Samve features as v0.0.3, but replacing the liner models by a random forest each
+v0.0.4: Same features as v0.0.3, but replacing the liner models by a random forest each
+v0.0.5: Random forest replaced by two XGB regressors. One does regression and then classifies to show we need dual
+v0.0.6: Dual XGB: One does classification, the other regression 
