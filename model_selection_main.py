@@ -13,7 +13,6 @@ from src.data_preparation import constants as prep_constants
 
 from src.model import utils as model_utils
 from src.model import constants as model_constants
-from src.model.custom_estimators import zero_inflated_estimator, zero_inflated_log_estimator
 
 df_train = pd.read_parquet(prep_constants.CLEAN_PATH+"train.parquet")
 
@@ -35,13 +34,13 @@ static_folds = KFold(n_splits=5)
 # Candidate 1: Basic linear regression AND a basic logistic regression
 regression_pipeline = Pipeline(steps=[
     ("preprocessor", pipe_wrapper.create_preprocessing_pipeline()),
-    ("model", LinearRegression())
+    ("model", RandomForestRegressor(n_estimators=50, max_depth=20, min_samples_split=0.0005, max_features=0.25))
 ])
 cv_score_reg = cross_val_score(regression_pipeline, X_train, y_train_reg, cv=static_folds)
 
 classification_pipeline = Pipeline(steps=[
     ("preprocessor", pipe_wrapper.create_preprocessing_pipeline()),
-    ("model", LogisticRegression(max_iter=1000))
+    ("model", RandomForestClassifier(n_estimators=100, min_samples_split=0.0005))
 ])
 cv_score_class = cross_val_score(classification_pipeline, X_train, y_train_class, cv=static_folds)
 
