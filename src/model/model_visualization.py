@@ -8,11 +8,11 @@ def compute_delay_by_year(df):
         df
         .groupby(["scaling_factor", "departure_year"], as_index=False)
         .agg(
-            average_delay_time=("delay", "mean"),
-            median_delay_time=("delay", "median"),
-            perc_99_delay_time=("delay", my_quantile99),
-            perc_999_delay_time=("delay", my_quantile999),
-            max_delay_time=("delay", "max"),
+            average_expected_delay_time=("delay", "mean"),
+            median_expected_delay_time=("delay", "median"),
+            #perc_99_delay_time=("delay", my_quantile99),
+            #perc_999_delay_time=("delay", my_quantile999),
+            #max_delay_time=("delay", "max"),
             num_legs=("delay", "count"),
             perc_legs_delayed=("is_delayed", "mean"),
             perc_legs_delayed_more_than_15_min=("is_delayed_more_than_15_min", "mean")

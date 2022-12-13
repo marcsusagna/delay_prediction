@@ -18,14 +18,14 @@ def process_all_increase_input(user_input):
 # Creating a function named predict
 def predict(name):
     all_increases = process_all_increase_input(name)
-    model_results = predict_contrafactual_test(all_increases)
+    model_results = predict_contrafactual_test(all_increases, model_version)
     table = model_results.to_html(index=False)
     return render_template("table_template.html", table=table)
 
 @app.route('/metrics/<name>', methods=['GET', 'POST'])
 # Creating a function named metrics
 def metrics(name):
-    my_df = summarize_model_metrics()
+    my_df = summarize_model_metrics(model_version)
     table = my_df.to_html(index=False)
     return render_template("table_template.html", table=table)
 
@@ -47,4 +47,5 @@ def login():
 
 if __name__ == '__main__':
     environment = sys.argv[1]
+    model_version = sys.argv[2]
     app.run(debug=False, host='0.0.0.0', port=PORT_CONFIG[environment])

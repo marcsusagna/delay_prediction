@@ -19,7 +19,7 @@ df_all_train = pd.concat([df_train, df_validation])
 df_test = pd.read_parquet(prep_constants.CLEAN_PATH+"test.parquet")
 
 ## Train on 2021 and predict on 2022 to get estimate of test performance when prediting leg delays
-model_to_evaluate = clone(model_blueprint["model"]["untrained_model"])
+model_to_evaluate = model_utils.clone_model(model_blueprint["model"]["untrained_model"])
 model_pipeline_wrapper = model_blueprint["model"]["pipeline_wrapper"]
 
 test_score = model_utils.train_and_test_model(model_to_evaluate, model_pipeline_wrapper, df_all_train, df_test)
@@ -42,31 +42,40 @@ print("Contrafactual test regression score:", contrafactual_test_score[0])
 print("Contrafactual test accuracy score:", contrafactual_test_score[1])
 
 # Predict on contrafactual dataset to compare distributions:
-X_contrafactual_test, y_contrafactual_test = (
+X_contrafactual_test, y_contrafactual_test_reg, y_contrafactual_test_class = (
     model_utils
     .create_X_and_y(df_contrafactual_test, model_pipeline_wrapper)
 )
-
+df_contrafactual_test["is_delayed"] = y_contrafactual_test_class
 # Real delays in flights from 2021 schedule that replicated in 2022 schedule:
-delay_2022_for_2021_schedule = model_evaluation.characterize_delay_distribution(y_contrafactual_test.to_numpy())
+delay_2022_for_2021_schedule = model_evaluation.characterize_delay_distribution(
+    y_contrafactual_test_reg.to_numpy(),
+    y_contrafactual_test_class.to_numpy()
+)
 print("Real delays in 2022 for flights with same schedule as 2021", delay_2022_for_2021_schedule)
 
 business_2022_for_2021_schedule = model_evaluation.obtain_business_metrics(
     df=df_contrafactual_test,
     pax_column="original_total_pax",
-    delay_time_column="total_delay_time"
+    delay_time_column="total_delay_time",
+    is_delayed_column="is_delayed"
 )
 
 # Predicted delays according to contrafactual analysis with the given pax increase:
-predicted_delays_2022 = model_to_evaluate.predict(X_contrafactual_test)
-df_contrafactual_test["predicted_total_delay_time"] = predicted_delays_2022
-predicted_delay_2022_for_2021_schedule = model_evaluation.characterize_delay_distribution(predicted_delays_2022)
+predicted_delays_2022 = model_utils.predict_dual_model(model_to_evaluate, X_contrafactual_test)
+df_contrafactual_test["predicted_total_delay_time"] = predicted_delays_2022[0]
+df_contrafactual_test["predicted_is_delayed"] = predicted_delays_2022[1]
+predicted_delay_2022_for_2021_schedule = model_evaluation.characterize_delay_distribution(
+    predicted_delays_2022[0],
+    predicted_delays_2022[1]
+)
 print("Predicted delays in 2022 for flights with same schedule as 2021", predicted_delay_2022_for_2021_schedule)
 
 predicted_business_2022_for_2021_schedule = model_evaluation.obtain_business_metrics(
     df=df_contrafactual_test,
     pax_column="total_pax",
-    delay_time_column="predicted_total_delay_time"
+    delay_time_column="predicted_total_delay_time",
+    is_delayed_column="predicted_is_delayed"
 )
 
 # Update template with scores:

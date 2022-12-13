@@ -16,7 +16,7 @@ df_validation = pd.read_parquet(prep_constants.CLEAN_PATH+"validation.parquet")
 df_test = pd.read_parquet(prep_constants.CLEAN_PATH+"test.parquet")
 df_all_train = pd.concat([df_train, df_validation, df_test])
 
-final_model = clone(model_blueprint["model"]["untrained_model"])
+final_model = model_utils.clone_model(model_blueprint["model"]["untrained_model"])
 model_pipeline_wrapper = model_blueprint["model"]["pipeline_wrapper"]
 model_utils.train_model(
     model=final_model,

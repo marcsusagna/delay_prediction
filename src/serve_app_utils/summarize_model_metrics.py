@@ -1,6 +1,5 @@
 import pandas as pd
 
-from ..model import constants
 from ..model import utils as model_utils
 
 def get_metrics_in_lists(my_dict, label):
@@ -12,7 +11,6 @@ def get_metrics_in_lists(my_dict, label):
 
 def extract_specific_scenario_delay_metrics(subdict, label):
     tmp_dict = subdict.copy()
-    tmp_dict.pop("quantiles_delay_time")
     return get_metrics_in_lists(tmp_dict, label)
 
 
@@ -28,8 +26,7 @@ def obtain_delay_metrics(dict_business_metrics):
     return real_2022, predicted_2022
 
 
-def summarize_model_metrics():
-    model_version = constants.MODEL_CURRENT_VERSION
+def summarize_model_metrics(model_version):
     model_blueprint = model_utils.fetch_model_blueprint_from_registry(model_version)
 
     ml_metrics = get_metrics_in_lists(model_blueprint["metrics"]["ml"], "machine_learning")

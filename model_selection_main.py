@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.pipeline import Pipeline
 
 from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
 
 from src.data_preprocessing.preprocessing_pipeline import PreprocessingPipeline
 from src.data_preparation import constants as prep_constants
@@ -26,27 +27,34 @@ pipe_wrapper = PreprocessingPipeline(
 
 ### Model selection:
 
-X_train, y_train = model_utils.create_X_and_y(df_train, pipe_wrapper)
+X_train, y_train_reg, y_train_class = model_utils.create_X_and_y(df_train, pipe_wrapper)
 static_folds = KFold(n_splits=5)
-all_cvs = {}
-
 
 ## Candidate model definition:
 
-# Candidate 1: Basic linear regression
-lin_reg_pipeline = Pipeline(steps=[
+# Candidate 1: Basic linear regression AND a basic logistic regression
+regression_pipeline = Pipeline(steps=[
     ("preprocessor", pipe_wrapper.create_preprocessing_pipeline()),
     ("model", LinearRegression())
 ])
-model_utils.add_cv_result(all_cvs, "lin_reg", lin_reg_pipeline, X_train, y_train, static_folds)
+cv_score_reg = cross_val_score(regression_pipeline, X_train, y_train_reg, cv=static_folds)
 
-# Pick best model:
-print({k: v["cv_score"].mean() for k, v in all_cvs.items()})
+classification_pipeline = Pipeline(steps=[
+    ("preprocessor", pipe_wrapper.create_preprocessing_pipeline()),
+    ("model", LogisticRegression(max_iter=1000))
+])
+cv_score_class = cross_val_score(classification_pipeline, X_train, y_train_class, cv=static_folds)
+
+print("Model regression CVs", cv_score_reg.mean())
+print("Model classification CVs", cv_score_class.mean())
 
 #untrained_chosen_model, cv_scores_best_model = model_utils.find_best_cv(all_cvs)
 
-untrained_chosen_model = lin_reg_pipeline
-cv_score_mean = all_cvs["lin_reg"]["cv_score"].mean()
+untrained_chosen_model = {
+    "reg": regression_pipeline,
+    "class": classification_pipeline
+}
+cv_scores = {"reg": cv_score_reg.mean(), "class": cv_score_class.mean()}
 
 # Test best model on validation and save the model blueprint
 
@@ -56,7 +64,7 @@ chosen_model_blueprint = model_utils.create_model_blueprint(
     model_version_tag=model_constants.MODEL_NEW_VERSION,
     untrained_chosen_model=untrained_chosen_model,
     pipeline_wrapper=pipe_wrapper,
-    cv_score=cv_score_mean,
+    cv_score=cv_scores,
     df_train=df_train,
     df_validation=df_validation,
 )
