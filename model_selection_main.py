@@ -73,8 +73,8 @@ chosen_model_blueprint = model_utils.create_model_blueprint(
 benchmark_model = model_utils.fetch_model_blueprint_from_registry(model_constants.MODEL_CURRENT_VERSION)
 print("Benchmark model performance")
 print("cv_score", benchmark_model["metrics"]["ml"]["cv_score"])
-print("validation_regression_score", chosen_model_blueprint["metrics"]["ml"]["validation_regression_score"].mean())
-print("validation_classification_score", chosen_model_blueprint["metrics"]["ml"]["validation_classification_score"].mean())
+print("validation_regression_score", benchmark_model["metrics"]["ml"]["validation_regression_score"].mean())
+print("validation_classification_score", benchmark_model["metrics"]["ml"]["validation_classification_score"].mean())
 
 # New model scores:
 print("New model performance")
