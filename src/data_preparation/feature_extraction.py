@@ -65,6 +65,9 @@ def time_difference_features(input_df):
 def numeric_features(input_df):
     out_df = input_df.copy()
     out_df["rel_leg_distance"] = input_df["leg_dist_scd"]/input_df["flt_dist_scd"]
+    out_df["pax_fln_f"] = (input_df["pax_fln_f"] / input_df["total_pax"]).fillna(0)
+    out_df["pax_fln_c"] = (input_df["pax_fln_c"] / input_df["total_pax"]).fillna(0)
+    out_df["pax_fln_y"] = (input_df["pax_fln_y"] / input_df["total_pax"]).fillna(0)
     return out_df
 
 
