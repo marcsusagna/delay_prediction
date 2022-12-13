@@ -57,26 +57,25 @@ regression_pipeline = Pipeline(steps=[
 ])
 cv_score_reg = cross_val_score(regression_pipeline, X_train, y_train_reg, cv=static_folds)
 
-base_xgb_class = my_xgb_regressor_that_classifies(
-    objective="reg:squarederror",
+base_xgb_class = xgb.XGBClassifier(
+    objective="binary:logistic",
     n_estimators=500,
     # Regularization:
-    max_depth=5,
+    max_depth=3,
     gamma=0,
     min_child_weight=1,
-    alpha=1000,
-    reg_lambda=1000,
+    alpha=3,
     # Randomness
     eta=0.5,
     subsample=0.75,
-    colsample_bytree=0.5
+    colsample_bytree=0.75
 )
 
 classification_pipeline = Pipeline(steps=[
     ("preprocessor", pipe_wrapper.create_preprocessing_pipeline()),
     ("model", clone(base_xgb_class))
 ])
-cv_score_class = cross_val_score(classification_pipeline, X_train, y_train_reg, cv=static_folds)
+cv_score_class = cross_val_score(classification_pipeline, X_train, y_train_class, cv=static_folds)
 
 print("Model regression CVs", cv_score_reg.mean())
 print("Model classification CVs", cv_score_class.mean())

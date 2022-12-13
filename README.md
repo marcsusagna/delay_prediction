@@ -1,10 +1,37 @@
+## The model
+
+### Objective
+Explain target
+
+### Data preparation and feature extraction (data pipeline)
+Explain 
+
+### Modeling
+
+### Model evaluation rationale
+
+ML vs delay analysis
+Why on 2022 for 2021?? Do not overfit! otw we have seen these flights, don't overestimate performance
+
+### How to predict for 2023
+
+How to create contrafactual dataset
+
+## Model development and evaluation
+
+Explain model_selection_main.py and model_evaluation_main.py
+
+
+## Model Lifecycle
+
+
 ### Deploying the last version of the model
 
 
 ### Deploying model training
 
 
-### Model lifecycle
+### Model lifecycle: From new version developing to deployment
 
 Steps to develop a new version of the model:
 1. Branch off master
@@ -19,5 +46,17 @@ Steps to develop a new version of the model:
 10. Increase MODEL_CURRENT_VERSION
 11. Raise PR, merge to master
 12. Run ci_cd.ps1 on powershell with the model version you just created. 
-13. Do your tests in TEST enviornment. Sign off deployment to PROD by answering Y to the powershell prompt
+13. Do your tests in TEST environment. Sign off deployment to PROD by answering Y to the powershell prompt
 14. Open PROD front-end to see new model was promoted to PROD. 
+
+### Model retraining
+
+
+### Model retraining because new data has arrived
+
+## Further steps on how to improve the model:
+
+Features: weather, airport capacity
+Outlier handling
+
+Evaluation: Randomness: on response variable scale 
