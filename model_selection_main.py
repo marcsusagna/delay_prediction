@@ -68,7 +68,8 @@ base_xgb_class = xgb.XGBClassifier(
     # Randomness
     eta=0.5,
     subsample=0.75,
-    colsample_bytree=0.75
+    colsample_bytree=0.75,
+    scale_pos_weight=0.75
 )
 
 classification_pipeline = Pipeline(steps=[
